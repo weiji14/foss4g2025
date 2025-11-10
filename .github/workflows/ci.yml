@@ -29,8 +29,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Update Rust toolchain
-        run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+      - name: Setup rust toolchain, cache and cargo-codspeed binary
+        uses: moonrepo/setup-rust@ede6de059f8046a5e236c94046823e2af11ca670 # v1.2.2
+        with:
+          channel: ${{ matrix.toolchain }}
+          cache: false
+          cache-target: release
+          bins: cargo-codspeed
 
-      - name: Build
-        run: cargo build --verbose --all-features
+      - name: Build the benchmark target(s)
+        run: cargo codspeed build
+
+      - name: Run the benchmarks
+        uses: CodSpeedHQ/action@bb005fe1c1eea036d3894f02c049cb6b154a1c27 # v4.3.3
+        with:
+          run: cargo codspeed run
