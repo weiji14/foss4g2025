@@ -31,5 +31,5 @@ url = "2.5.7"
 cuda = ["cudarc"]
 
 [[bench]]
-name = "read_cog"
+name = "read_geotiff"
 harness = false
