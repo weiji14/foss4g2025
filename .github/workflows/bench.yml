@@ -1,4 +1,5 @@
-name: CI
+# Run performance benchmarks
+name: Benchmarks
 
 on:
   push:
@@ -48,4 +49,5 @@ jobs:
       - name: Run the benchmarks
         uses: CodSpeedHQ/action@bb005fe1c1eea036d3894f02c049cb6b154a1c27 # v4.3.3
         with:
+          mode: instrumentation
           run: cargo codspeed run
