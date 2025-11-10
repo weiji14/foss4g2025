@@ -36,6 +36,23 @@ GPU-accelerated GeoTIFF readers compare against GDAL's
 and find out how we're making these performant low-level Rust-based readers more
 accessible by integrating with the [xarray](https://xarray.dev) ecosystem and beyond!
 
+# Getting started
+
+## Pre-requisites
+
+These are system-level dependencies you'll need to install:
+
+- [Rust](https://rust-lang.org/tools/install/) 1.90.0
+- [nvTIFF](https://developer.nvidia.com/nvtiff-0-5-0-download-archive) 0.5.0
+- [GDAL](https://gdal.org/en/stable/download.html) 3.11
+
+The nvTIFF library's `nvtiff.h` file requires some patches before the Rust bindings can
+be generated, run the following commands with sudo:
+
+    sed --in-place "s/memLimit=0/memLimit/g" /usr/include/nvtiff.h
+    sed --in-place "s/stream=0/stream/g" /usr/include/nvtiff.h
+    sed --in-place "s/nvtiffTagDataType type/enum nvtiffTagDataType type/g" /usr/include/nvtiff.h
+
 ## License
 
 All code in this repository is licensed under

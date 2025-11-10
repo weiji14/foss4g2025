@@ -1,0 +1,35 @@
+[package]
+name = "foss4g2025"
+version = "0.1.0"
+edition = "2024"
+description = "Accelerating GeoTIFF readers with Rust."
+readme = "README.md"
+repository = "https://github.com/weiji14/foss4g2025"
+license = "MPL-2.0"
+rust-version = "1.85.0"
+authors = ["Wei Ji <23487320+weiji14@users.noreply.github.com>"]
+
+[dependencies]
+cudarc = { version = "0.17.7", features = [
+    "cuda-version-from-build-system",
+    "fallback-latest",
+], optional = true }
+
+[dev-dependencies]
+async-tiff = { version = "0.1.0", git = "https://github.com/developmentseed/async-tiff", tag = "py-v0.2.0" }
+cog3pio = "0.0.1"
+criterion = "0.7.0"
+dlpark = { version = "0.6.0", features = ["ndarray"] }
+gdal = { version = "0.18.0", features = ["array", "bindgen"] }
+ndarray = "0.16.1"
+object_store = "0.12.4"
+rayon = "1.11.0"
+tokio = "1.48.0"
+url = "2.5.7"
+
+[features]
+cuda = ["cudarc"]
+
+[[bench]]
+name = "read_cog"
+harness = false
