@@ -61,11 +61,10 @@ To try out the code, start by cloning this [repo-url](/../../)
     cd foss4g2025
 
 Next, download a sample Sentinel-2 True Colour Image (TCI) GeoTIFF file (318.0MB), and
-convert it to a tiled GeoTIFF, and change from Deflate to LZW compression with
+convert it to a tiled GeoTIFF, changing from Deflate to LZW compression while setting
 Horizontal differencing predictor (272.2MB).
 
-    wget --directory-prefix=benches https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/M/BV/2024/10/S2A_37MBV_20241029_0_L2A/TCI.tif
-    gdal raster convert --co COMPRESS=LZW --co TILED=YES --co PREDICTOR=2 benches/TCI.tif benches/TCI_lzw.tif
+    gdal raster convert --co COMPRESS=LZW --co TILED=YES --co PREDICTOR=2 https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/M/BV/2024/10/S2A_37MBV_20241029_0_L2A/TCI.tif benches/TCI_lzw.tif
 
 Then, use [cargo](https://doc.rust-lang.org/cargo/index.html) to install the
 dependencies, compile and run the benchmarks like so:
