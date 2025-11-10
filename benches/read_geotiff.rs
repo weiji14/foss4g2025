@@ -35,11 +35,12 @@ use tokio::runtime;
 use url::Url;
 
 // gdal
-fn read_geotiff_gdal(fpath: &str) {
+fn read_geotiff_gdal(fpath: &str, n_threads: usize) {
+    let n_threads: String = format!("NUM_THREADS={}", n_threads);
     let options = DatasetOptions {
         open_flags: GdalOpenFlags::default(),
         allowed_drivers: Some(&["LIBERTIFF"]),
-        open_options: Some(&["NUM_THREADS=16"]),
+        open_options: Some(&[n_threads.as_str()]),
         sibling_files: None,
     };
     let ds = Dataset::open_ex(fpath, options).unwrap();
@@ -54,7 +55,7 @@ fn read_geotiff_gdal(fpath: &str) {
 }
 
 // async-tiff
-fn read_geotiff_async_tiff(fpath: &str) {
+fn read_geotiff_async_tiff(fpath: &str, n_threads: usize) {
     // let file = File::open(fpath).unwrap();
     let abs_path: PathBuf = std::path::Path::new(fpath).canonicalize().unwrap();
     let tif_url: Url = Url::from_file_path(abs_path).unwrap();
@@ -65,7 +66,7 @@ fn read_geotiff_async_tiff(fpath: &str) {
 
     // Initialize async runtime
     let runtime = runtime::Builder::new_current_thread()
-        // ::new_multi_thread().worker_threads(16)
+        // ::new_multi_thread().worker_threads(n_threads)
         .enable_all()
         .build()
         .unwrap();
@@ -104,7 +105,10 @@ fn read_geotiff_async_tiff(fpath: &str) {
     });
 
     // Do actual decoding of TIFF tile data (multi-threaded using rayon)
-    let pool = ThreadPoolBuilder::new().num_threads(16).build().unwrap();
+    let pool = ThreadPoolBuilder::new()
+        .num_threads(n_threads)
+        .build()
+        .unwrap();
     let tile_bytes: Vec<_> = pool.install(|| {
         tiles
             .into_par_iter()
@@ -123,17 +127,17 @@ fn criterion_benchmark(c: &mut Criterion) {
     // CPU decoding using GDAL
     group.sample_size(30);
     group.bench_with_input(
-        BenchmarkId::new("1_gdal_CPU", "Sentinel-2 TCI"),
+        BenchmarkId::new("1_gdal_CPU_threads=4", "Sentinel-2 TCI"),
         "benches/TCI_lzw.tif",
-        |b, p| b.iter(|| read_geotiff_gdal(p)),
+        |b, p| b.iter(|| read_geotiff_gdal(p, 4)),
     );
 
     // CPU decoding using async-tiff
     group.sample_size(30);
     group.bench_with_input(
-        BenchmarkId::new("2_async-tiff_CPU", "Sentinel-2 TCI"),
+        BenchmarkId::new("2_async-tiff_CPU_threads=4", "Sentinel-2 TCI"),
         "benches/TCI_lzw.tif",
-        |b, p| b.iter(|| read_geotiff_async_tiff(p)),
+        |b, p| b.iter(|| read_geotiff_async_tiff(p, 4)),
     );
 
     group.finish();
