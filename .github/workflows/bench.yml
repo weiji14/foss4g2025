@@ -35,6 +35,12 @@ jobs:
           sudo apt update
           sudo apt install -y --no-install-recommends libgdal-dev
 
+      - name: Download and process sample GeoTIFF
+        run: |
+          wget --directory-prefix=benches https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/M/BV/2024/10/S2A_37MBV_20241029_0_L2A/TCI.tif
+          docker run --rm --volume $PWD:/data/ ghcr.io/osgeo/gdal:alpine-small-latest gdal raster convert --co COMPRESS=LZW --co TILED=YES --co PREDICTOR=2 data/benches/TCI.tif data/benches/TCI_lzw.tif
+          ls -lh benches/
+
       - name: Setup rust toolchain, cache and cargo-codspeed binary
         uses: moonrepo/setup-rust@ede6de059f8046a5e236c94046823e2af11ca670 # v1.2.2
         with:
