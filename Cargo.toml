@@ -10,6 +10,9 @@ rust-version = "1.89.0"
 authors = ["Wei Ji <23487320+weiji14@users.noreply.github.com>"]
 
 [dependencies]
+cog3pio = { version = "0.0.1", git = "https://github.com/weiji14/cog3pio", features = [
+    "cuda",
+], rev = "1564f828bc759e1c8aa1a53eb3359aa2786b12a1", optional = true }
 cudarc = { version = "0.17.7", features = [
     "cuda-version-from-build-system",
     "fallback-latest",
@@ -17,9 +20,11 @@ cudarc = { version = "0.17.7", features = [
 
 [dev-dependencies]
 async-tiff = { version = "0.1.0", git = "https://github.com/developmentseed/async-tiff", tag = "py-v0.2.0" }
-cog3pio = "0.0.1"
+bytes = "1.10.1"
 criterion = { package = "codspeed-criterion-compat", version = "4.1.0" }
-dlpark = { version = "0.6.0", features = ["ndarray"] }
+dlpark = { git = "https://github.com/SunDoge/dlpark.git", version = "0.6.0", features = [
+    "ndarray",
+], rev = "2455a562af10a6655465d24d7e9c78996c613e6a" }
 gdal = { git = "https://github.com/georust/gdal.git", version = "0.18.0", features = [
     "array",
     "bindgen",
@@ -31,7 +36,7 @@ tokio = "1.48.0"
 url = "2.5.7"
 
 [features]
-cuda = ["cudarc"]
+cuda = ["cudarc", "cog3pio"]
 
 [[bench]]
 name = "read_geotiff"
