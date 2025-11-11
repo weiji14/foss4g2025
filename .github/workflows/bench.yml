@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         toolchain:
-          - 1.85.0 # msrv
+          - 1.89.0 # msrv
           - stable
     steps:
       - name: Install git before fetching repository

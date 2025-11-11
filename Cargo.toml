@@ -6,7 +6,7 @@ description = "Accelerating GeoTIFF readers with Rust."
 readme = "README.md"
 repository = "https://github.com/weiji14/foss4g2025"
 license = "MPL-2.0"
-rust-version = "1.85.0"
+rust-version = "1.89.0"
 authors = ["Wei Ji <23487320+weiji14@users.noreply.github.com>"]
 
 [dependencies]

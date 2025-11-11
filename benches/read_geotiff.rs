@@ -36,7 +36,7 @@ use url::Url;
 
 // gdal
 fn read_geotiff_gdal(fpath: &str, n_threads: usize) {
-    let n_threads: String = format!("NUM_THREADS={}", n_threads);
+    let n_threads: String = format!("NUM_THREADS={n_threads}");
     let options = DatasetOptions {
         open_flags: GdalOpenFlags::default(),
         allowed_drivers: Some(&["LIBERTIFF"]),
