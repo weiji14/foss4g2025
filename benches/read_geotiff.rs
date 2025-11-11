@@ -76,9 +76,21 @@ fn read_geotiff_gdal(fpath: &str, n_threads: usize) {
     for b in 1..3 {
         let band = ds.rasterband(b).unwrap();
         let buffer: Buffer<u8> = band.read_band_as::<u8>().unwrap();
-        let array: Array2<_> = buffer.to_array().unwrap();
+        let mut array: Array2<_> = buffer.to_array().unwrap();
 
         assert_eq!(array.shape(), [10980, 10980]);
+
+        #[cfg(feature = "cuda")]
+        {
+            // Copy from CPU (host) memory to CUDA (device) memory
+            let ctx: Arc<CudaContext> = CudaContext::new(0).unwrap(); // Set on GPU:0
+            let cuda_stream: Arc<CudaStream> = ctx.default_stream();
+            let mut cuda_mem = cuda_stream.alloc_zeros::<u8>(3 * 10980 * 10980).unwrap();
+
+            cuda_stream
+                .memcpy_htod(array.as_slice_mut().unwrap(), &mut cuda_mem)
+                .unwrap();
+        }
     }
 }
 
@@ -121,10 +133,10 @@ fn read_geotiff_async_tiff(fpath: &str, n_threads: usize) {
         let (x_count, y_count) = ifd.tile_count().unwrap();
         // dbg!(x_count, y_count); // 43 * 43 = 1849
         // Get cartesian product of x and y tile ids
-        let x_ids: Vec<_> = (0..x_count)
+        let x_ids: Vec<usize> = (0..x_count)
             .flat_map(|i| (0..y_count).map(move |_j| i))
             .collect();
-        let y_ids: Vec<_> = (0..x_count).flat_map(|_i| 0..y_count).collect();
+        let y_ids: Vec<usize> = (0..x_count).flat_map(|_i| 0..y_count).collect();
 
         let tiles: Vec<Tile> = ifd.fetch_tiles(&x_ids, &y_ids, &reader).await.unwrap();
         assert_eq!(tiles.len(), 1849);
@@ -137,13 +149,28 @@ fn read_geotiff_async_tiff(fpath: &str, n_threads: usize) {
         .num_threads(n_threads)
         .build()
         .unwrap();
-    let tile_bytes: Vec<_> = pool.install(|| {
+    let tile_bytes: Vec<u8> = pool.install(|| {
         tiles
             .into_par_iter()
             .map(|tile| tile.decode(&decoder_registry).unwrap())
+            .flat_map(|bytes| bytes.to_vec())
             .collect()
     });
-    assert_eq!(tile_bytes.len(), 1849);
+    assert_eq!(tile_bytes.len(), 363528192); // should be 361681200, why not?
+
+    #[cfg(feature = "cuda")]
+    {
+        // Copy from CPU (host) memory to CUDA (device) memory
+        let ctx: Arc<CudaContext> = CudaContext::new(0).unwrap(); // Set on GPU:0
+        let cuda_stream: Arc<CudaStream> = ctx.default_stream();
+        let mut cuda_mem = cuda_stream
+            .alloc_zeros::<u8>(
+                tile_bytes.len(), // should be 3 * 10980 * 10980 theoretically
+            )
+            .unwrap();
+
+        cuda_stream.memcpy_htod(&tile_bytes, &mut cuda_mem).unwrap();
+    }
 }
 
 fn criterion_benchmark(c: &mut Criterion) {

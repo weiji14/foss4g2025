@@ -69,11 +69,19 @@ Horizontal differencing predictor (272.2MB).
 Then, use [cargo](https://doc.rust-lang.org/cargo/index.html) to install the
 dependencies, compile and run the benchmarks like so:
 
-    cargo bench
+    cargo bench  # Benchmarks on CPU-only
+    cargo bench --features cuda  # Benchmark reading to GPU (CUDA) memory
 
 Output results will be printed to the terminal, and a HTML report can be viewed by
 opening the `target/criterion/report/index.html` file.
 
+# References
+
+## Links
+
+- https://discourse.pangeo.io/t/decode-geotiff-to-gpu-memory/5214
+- [GeoTIFFs to GPUs part 1: An Unexpected Conflict - multi-threaded reads, too many jobs](https://weiji14.xyz/blog/geotiffs-to-gpus-part-1:-an-unexpected-conflict-multi-threaded-reads-too-many-jobs/)
+- [GeoTIFFs to GPUs part 2: Barrels Out of Bytes - streaming Rust bits to the GPU](https://weiji14.xyz/blog/geotiffs-to-gpus-part-2:-barrels-out-of-bytes-streaming-rust-bits-to-the-gpu/)
 
 ## License
 
