@@ -28,10 +28,10 @@ jobs:
           - 1.89.0 # msrv
           - stable
     steps:
-      - name: Install git before fetching repository
+      - name: Install dev dependencies and setup git
         run: |
           apt update
-          apt install -y git
+          apt install -y build-essential cmake git libclang-dev pkg-config
           git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - name: Checkout repository
@@ -43,11 +43,6 @@ jobs:
         run: |
           gdal raster convert --co COMPRESS=LZW --co TILED=YES --co PREDICTOR=2 https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/M/BV/2024/10/S2A_37MBV_20241029_0_L2A/TCI.tif benches/TCI_lzw.tif
           ls -lh benches/
-
-      - name: Install dev dependencies
-        run: |
-          apt update
-          apt install -y build-essential cmake libclang-dev pkg-config
 
       - name: Setup rust toolchain, cache and cargo-codspeed binary
         uses: moonrepo/setup-rust@ede6de059f8046a5e236c94046823e2af11ca670 # v1.2.2
