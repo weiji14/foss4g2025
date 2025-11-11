@@ -1,6 +1,7 @@
-// Benchmark tests on reading a GeoTIFF into memory
+// Benchmark tests on reading a GeoTIFF into memory (CPU or GPU)
 //
 // Libraries compared:
+// - nvTIFF (Enable NVIDIA network repository and do `sudo apt install nvtiff nvcomp-cuda-12`)
 // - GDAL
 // - async-tiff
 //
@@ -11,19 +12,31 @@
 // - Change from DEFLATE to LZW compression with Horizontal differencing predictor (272.2MB)
 //   using the following command
 //   `gdal raster convert --co COMPRESS=LZW --co TILED=YES --co PREDICTOR=2 benches/TCI.tif benches/TCI_lzw.tif`
-// - Run `cargo bench`
+// - Run `cargo bench` (CPU-only) or `cargo bench --features cuda` (with CUDA-enabled GPU)
 //
 // References:
 // - https://github.com/microsoft/pytorch-cloud-geotiff-optimization/blob/5fb6d1294163beff822441829dcd63a3791b7808/configs/search.yaml#L6
 
 use std::path::PathBuf;
 use std::sync::Arc;
+#[cfg(feature = "cuda")]
+use std::time::Duration;
 
 use async_tiff::decoder::DecoderRegistry;
 use async_tiff::metadata::{PrefetchBuffer, TiffMetadataReader};
 use async_tiff::reader::ObjectReader;
 use async_tiff::{ImageFileDirectory, Tile};
+#[cfg(feature = "cuda")]
+use bytes::Bytes;
+#[cfg(feature = "cuda")]
+use cog3pio::io::nvtiff::CudaCogReader;
 use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
+#[cfg(feature = "cuda")]
+use cudarc::driver::{CudaContext, CudaStream};
+#[cfg(feature = "cuda")]
+use dlpark::SafeManagedTensorVersioned;
+#[cfg(feature = "cuda")]
+use dlpark::traits::TensorView;
 use gdal::raster::Buffer;
 use gdal::{Dataset, DatasetOptions, GdalOpenFlags};
 use ndarray::Array2;
@@ -33,6 +46,21 @@ use rayon::ThreadPoolBuilder;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tokio::runtime;
 use url::Url;
+
+// nvtiff
+#[cfg(feature = "cuda")]
+fn read_geotiff_nvtiff(fpath: &str) {
+    let v: Vec<u8> = std::fs::read(fpath).unwrap();
+    let bytes = Bytes::copy_from_slice(&v);
+
+    let ctx: Arc<CudaContext> = CudaContext::new(0).unwrap(); // Set on GPU:0
+    let cuda_stream: Arc<CudaStream> = ctx.default_stream();
+
+    let cog = CudaCogReader::new(&bytes, &cuda_stream).unwrap();
+    let tensor: SafeManagedTensorVersioned = cog.dlpack().unwrap();
+
+    assert_eq!(tensor.num_elements(), 3 * 10980 * 10980);
+}
 
 // gdal
 fn read_geotiff_gdal(fpath: &str, n_threads: usize) {
@@ -123,6 +151,21 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let fsize: u64 = std::fs::metadata("benches/TCI_lzw.tif").unwrap().len();
     group.throughput(Throughput::BytesDecimal(fsize)); // 272.2MB filesize
+
+    // GPU decoding using nvTIFF
+    #[cfg(feature = "cuda")]
+    {
+        group
+            .sample_size(10) // reduce sample size because of CUDA memory leak
+            .nresamples(2)
+            .warm_up_time(Duration::from_millis(1))
+            .measurement_time(Duration::from_secs(2));
+        group.bench_with_input(
+            BenchmarkId::new("0_nvTIFF_GPU", "Sentinel-2 TCI"),
+            "benches/TCI_lzw.tif",
+            |b, p| b.iter(|| read_geotiff_nvtiff(p)),
+        );
+    }
 
     // CPU decoding using GDAL
     group.sample_size(30);
