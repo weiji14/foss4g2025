@@ -152,8 +152,7 @@ fn read_geotiff_async_tiff(fpath: &str, n_threads: usize) {
     let tile_bytes: Vec<u8> = pool.install(|| {
         tiles
             .into_par_iter()
-            .map(|tile| tile.decode(&decoder_registry).unwrap())
-            .flat_map(|bytes| bytes.to_vec())
+            .flat_map_iter(|tile| tile.decode(&decoder_registry).unwrap())
             .collect()
     });
     assert_eq!(tile_bytes.len(), 363528192); // should be 361681200, why not?
