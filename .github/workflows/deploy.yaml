@@ -4,6 +4,7 @@ name: Deploy slides
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 concurrency:
