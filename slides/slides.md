@@ -271,12 +271,12 @@ Full code at https://github.com/weiji14/foss4g2025
 <LogoHorPos position="bottom-right" height="24px" />
 
 <DecorativeRectangle
-  width="19%"
+  width="23.5%"
   height="17%"
   zIndex=10
   :position="{
     top: '-5%',
-    left: '19.5%',
+    left: '22.5%',
   }"
   :customStyle="{ mixBlendMode: 'multiply' }"
 />
@@ -352,12 +352,12 @@ Full code at https://github.com/weiji14/foss4g2025
 <LogoHorPos position="bottom-right" height="24px" />
 
 <DecorativeRectangle
-  width="19%"
+  width="23.5%"
   height="17%"
   zIndex=10
   :position="{
     top: '-5%',
-    left: '19.5%',
+    left: '22.5%',
   }"
   :customStyle="{ mixBlendMode: 'multiply' }"
 />
