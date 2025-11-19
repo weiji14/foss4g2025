@@ -39,7 +39,7 @@ A tour of decoding TIFFs using multi-threaded, asynchronous and GPU-accelerated 
       FOSS4G 2025 talk
     </h3>
     <h4 text-md font-mono>
-      Wednesday 20 Nov 2025 <br> 16:30-16:55 (NZDT)
+      Thursday 20 Nov 2025 <br> 16:30-16:55 (NZDT)
     </h4>
     <h5 text-sm>
       Wei Ji Leong <code text-primary> @weiji14</code>
@@ -271,12 +271,12 @@ Full code at https://github.com/weiji14/foss4g2025
 <LogoHorPos position="bottom-right" height="24px" />
 
 <DecorativeRectangle
-  width="23.5%"
+  width="19%"
   height="17%"
   zIndex=10
   :position="{
     top: '-5%',
-    left: '22.5%',
+    left: '19.5%',
   }"
   :customStyle="{ mixBlendMode: 'multiply' }"
 />
@@ -352,12 +352,12 @@ Full code at https://github.com/weiji14/foss4g2025
 <LogoHorPos position="bottom-right" height="24px" />
 
 <DecorativeRectangle
-  width="23.5%"
+  width="19%"
   height="17%"
   zIndex=10
   :position="{
     top: '-5%',
-    left: '22.5%',
+    left: '19.5%',
   }"
   :customStyle="{ mixBlendMode: 'multiply' }"
 />
