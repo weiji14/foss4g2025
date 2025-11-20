@@ -39,7 +39,7 @@ A tour of decoding TIFFs using multi-threaded, asynchronous and GPU-accelerated 
       FOSS4G 2025 talk
     </h3>
     <h4 text-md font-mono>
-      Wednesday 20 Nov 2025 <br> 16:30-16:55 (NZDT)
+      Thursday 20 Nov 2025 <br> 16:30-16:55 (NZDT)
     </h4>
     <h5 text-sm>
       Wei Ji Leong <code text-primary> @weiji14</code>

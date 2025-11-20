@@ -76,7 +76,7 @@ fn read_geotiff_gdal(fpath: &str, n_threads: usize) {
     for b in 1..3 {
         let band = ds.rasterband(b).unwrap();
         let buffer: Buffer<u8> = band.read_band_as::<u8>().unwrap();
-        let mut array: Array2<_> = buffer.to_array().unwrap();
+        let array: Array2<_> = buffer.to_array().unwrap();
 
         assert_eq!(array.shape(), [10980, 10980]);
 
@@ -88,7 +88,7 @@ fn read_geotiff_gdal(fpath: &str, n_threads: usize) {
             let mut cuda_mem = cuda_stream.alloc_zeros::<u8>(3 * 10980 * 10980).unwrap();
 
             cuda_stream
-                .memcpy_htod(array.as_slice_mut().unwrap(), &mut cuda_mem)
+                .memcpy_htod(array.as_slice().unwrap(), &mut cuda_mem)
                 .unwrap();
         }
     }
